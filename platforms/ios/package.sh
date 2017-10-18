@@ -7,7 +7,10 @@ git archive --format=tar --prefix=tmp/ HEAD | tar xf -
 cd platforms/ios
 
 rm -rf ios-package
-mkdir ios-package
+
+mkdir -p ios-package/libs/iOS
+cp -f ../../libs/iOS/libcvextern.a ios-package/libs/iOS
+
 cp -r ../../tmp/Emgu.CV ios-package/Emgu.CV
 cp -f ../../Emgu.CV/*.cs ios-package/Emgu.CV/
 cp -f ../../Emgu.CV/Capture/*.cs ios-package/Emgu.CV/Capture
@@ -19,7 +22,6 @@ cp -f ../../Emgu.CV/Shape/*.cs ios-package/Emgu.CV/Shape
 cp -f ../../Emgu.CV/Stitching/*.cs ios-package/Emgu.CV/Stitching
 cp -f ../../Emgu.CV/Video/*.cs ios-package/Emgu.CV/Video
 cp -f ../../Emgu.CV/PInvoke/CvInvokeEntryPoints.cs ios-package/Emgu.CV/PInvoke
-cp -f ../../Emgu.CV/PInvoke/iOS/libemgucv.a ios-package/Emgu.CV/PInvoke/iOS
 cp -f ../../Emgu.CV/Util/*.cs ios-package/Emgu.CV/Util
 rm -rf ios-package/Emgu.CV/PInvoke/Android
 rm -rf ios-package/Emgu.CV/PInvoke/System.Drawing
@@ -88,9 +90,9 @@ cd ios-package
 cd ..
 
 /Library/Frameworks/Mono.framework/Commands/xbuild /p:Configuration=Release ../../Emgu.CV.World/Emgu.CV.World.IOS.csproj
-mkdir -p ios-package/bin
-cp ../../Emgu.CV.World/bin/Emgu.CV.World.IOS.dll ios-package/bin
-cp ../../Emgu.CV.World/bin/Emgu.CV.World.IOS.XML ios-package/bin
+#mkdir -p ios-package/bin
+cp ../../libs/Emgu.CV.World.IOS.dll ios-package/libs
+cp ../../libs/Emgu.CV.World.IOS.XML ios-package/libs
 cp ../../Emgu.CV.License.txt ios-package
 #gitversion=$(git log --oneline | wc -l | tr -d " ")
 emgucvversion=$(cat ../../emgucv.version.txt)

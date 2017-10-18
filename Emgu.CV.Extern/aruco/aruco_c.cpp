@@ -8,7 +8,9 @@
 
 cv::aruco::Dictionary* cveArucoGetPredefinedDictionary(int name)
 {
-   return cv::aruco::getPredefinedDictionary(static_cast<cv::aruco::PREDEFINED_DICTIONARY_NAME>(name)).get();
+	cv::Ptr<cv::aruco::Dictionary> ptr = cv::aruco::getPredefinedDictionary(static_cast<cv::aruco::PREDEFINED_DICTIONARY_NAME>(name));
+	ptr.addref();
+	return ptr.get();
 }
 
 cv::aruco::Dictionary* cveArucoDictionaryCreate1(int nMarkers, int markerSize)
@@ -22,7 +24,7 @@ cv::aruco::Dictionary* cveArucoDictionaryCreate2(int nMarkers, int markerSize, c
 	cv::Ptr<cv::aruco::Dictionary> baseDict;
 	if (baseDictionary)
 	{
-		baseDict = cv::makePtr<cv::aruco::Dictionary>(baseDictionary);
+		baseDict = baseDictionary;
 		baseDict.addref();
 	} else
 	{
@@ -41,7 +43,7 @@ void cveArucoDictionaryRelease(cv::aruco::Dictionary** dict)
 
 void cveArucoDrawMarker(cv::aruco::Dictionary* dictionary, int id, int sidePixels, cv::_OutputArray* img, int borderBits)
 {
-	cv::Ptr<cv::aruco::Dictionary> arucoDict = cv::makePtr<cv::aruco::Dictionary>(dictionary);
+	cv::Ptr<cv::aruco::Dictionary> arucoDict = dictionary;
 	arucoDict.addref();
     cv::aruco::drawMarker(arucoDict, id, sidePixels, *img, borderBits);
 }
@@ -56,7 +58,7 @@ void cveArucoDetectMarkers(
    cv::_OutputArray* ids, cv::aruco::DetectorParameters* parameters,
    cv::_OutputArray* rejectedImgPoints)
 {
-	cv::Ptr<cv::aruco::Dictionary> arucoDict = cv::makePtr<cv::aruco::Dictionary>(dictionary);
+	cv::Ptr<cv::aruco::Dictionary> arucoDict = dictionary;
 	arucoDict.addref();
 	cv::Ptr<cv::aruco::DetectorParameters> arucoParam = parameters;
 	arucoParam.addref();
@@ -74,10 +76,9 @@ cv::aruco::GridBoard* cveArucoGridBoardCreate(
    int markersX, int markersY, float markerLength, float markerSeparation,
    cv::aruco::Dictionary* dictionary, int firstMarker, cv::aruco::Board** boardPtr)
 {
-	cv::Ptr<cv::aruco::Dictionary> arucoDict = cv::makePtr<cv::aruco::Dictionary>(dictionary);
+	cv::Ptr<cv::aruco::Dictionary> arucoDict = dictionary;
 	arucoDict.addref();
 	cv::Ptr<cv::aruco::GridBoard> ptr = cv::aruco::GridBoard::create(markersX, markersY, markerLength, markerSeparation, arucoDict, firstMarker);
-
 	ptr.addref();
 	*boardPtr = dynamic_cast<cv::aruco::Board*>(ptr.get());
 	return ptr.get();
@@ -98,7 +99,7 @@ cv::aruco::CharucoBoard* cveCharucoBoardCreate(
    int squaresX, int squaresY, float squareLength, float markerLength,
    cv::aruco::Dictionary* dictionary, cv::aruco::Board** boardPtr)
 {
-	cv::Ptr<cv::aruco::Dictionary> dictPtr = cv::makePtr<cv::aruco::Dictionary>( dictionary );
+	cv::Ptr<cv::aruco::Dictionary> dictPtr = dictionary;
 	dictPtr.addref();
 	cv::Ptr<cv::aruco::CharucoBoard> ptr = cv::aruco::CharucoBoard::create(squaresX, squaresY, squareLength, markerLength, dictPtr);
 	

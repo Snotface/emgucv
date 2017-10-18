@@ -25,6 +25,7 @@ using Emgu.CV.Text;
 using Emgu.CV.Structure;
 using Emgu.CV.Bioinspired;
 using Emgu.CV.Dpm;
+using Emgu.CV.ImgHash;
 #if !(__IOS__ || NETFX_CORE)
 using Emgu.CV.Dnn;
 using Emgu.CV.Cuda;
@@ -2559,7 +2560,7 @@ namespace Emgu.CV.Test
 
             Image<Bgr, byte> image = EmguAssert.LoadImage<Bgr, Byte>("pedestrian.png");
             using (Retina retina = new Retina(
-                new Size(image.Width, image.Height), 
+                new Size(image.Width, image.Height),
                 true,
                 Retina.ColorSamplingMethod.ColorBayer, false, 1.0, 10.0))
             {
@@ -3154,10 +3155,10 @@ namespace Emgu.CV.Test
         }
 
         /* Find best class for the blob (i. e. class with maximal probability) */
-        private static void GetMaxClass(Blob probBlob, out int classId, out double classProb)
+        private static void GetMaxClass(Mat probBlob, out int classId, out double classProb)
         {
-            Mat matRef = probBlob.MatRef();
-            Mat probMat = matRef.Reshape(1, 1); //reshape the blob to 1x1000 matrix
+            //Mat matRef = probBlob.MatRef();
+            Mat probMat = probBlob.Reshape(1, 1); //reshape the blob to 1x1000 matrix
             Point minLoc = new Point(), maxLoc = new Point();
             double minVal = 0, maxVal = 0;
             CvInvoke.MinMaxLoc(probMat, ref minVal, ref maxVal, ref minLoc, ref maxLoc);
@@ -3185,20 +3186,18 @@ namespace Emgu.CV.Test
             //FCN accepts 500x500 RGB-images
             CvInvoke.Resize(img, img, new Size(500, 500));
 
-            Dnn.Blob inputBlob = new Dnn.Blob();
-            inputBlob.BatchFromImages(img);
-            net.SetBlob(".data", inputBlob);
-            net.Forward();
-            Dnn.Blob probBlob = net.GetBlob("score");
-            IntPtr dataPtr = probBlob.GetPtr();
+            Mat inputBlob = DnnInvoke.BlobFromImage(img);
+            net.SetInput(inputBlob, "data");
+            Mat probBlob = net.Forward("score");
+            IntPtr dataPtr = probBlob.DataPointer;
 
-            int channles = probBlob.Channels;
-            int rows = probBlob.Rows;
-            int cols = probBlob.Cols;
+            int channels = probBlob.SizeOfDimemsion[1];
+            int rows = probBlob.SizeOfDimemsion[2];
+            int cols = probBlob.SizeOfDimemsion[3];
             //should be a 1 x 21 x 500 x 500 Mat, where 21 is the number of classes.
-            float[,,] labels = new float[probBlob.Channels,probBlob.Rows,probBlob.Cols];
+            float[,,] labels = new float[channels, rows, cols];
             GCHandle handle = GCHandle.Alloc(labels, GCHandleType.Pinned);
-            Emgu.CV.Util.CvToolbox.Memcpy(dataPtr, handle.AddrOfPinnedObject(), sizeof(float) * probBlob.Channels * probBlob.Rows * probBlob.Cols);
+            Emgu.CV.Util.CvToolbox.Memcpy(dataPtr, handle.AddrOfPinnedObject(), sizeof(float) * probBlob.NumberOfChannels * probBlob.Rows * probBlob.Cols);
             handle.Free();
             //Marshal.Copy(dataPtr, labels, 0, labels.Length);
             byte[] imageData = new byte[3 * rows * cols];
@@ -3207,11 +3206,11 @@ namespace Emgu.CV.Test
                 {
                     int l = 0;
                     float maxScore = 0;
-                    for (int n = 0; n < channles; n++)
+                    for (int n = 0; n < channels; n++)
                     {
-                        if (maxScore < labels[n, rows, cols])
+                        if (maxScore < labels[n, r, c])
                         {
-                            maxScore = labels[n, rows, cols];
+                            maxScore = labels[n, r, c];
                             l = n;
                         }
                         int idx = 3 * (r * cols + c);
@@ -3221,9 +3220,9 @@ namespace Emgu.CV.Test
                     }
                 }
 
-            //#if !NETFX_CORE
+#if !NETFX_CORE
             //Trace.WriteLine("Best class: " + classNames[classId] + ". Probability: " + classProb);
-            //#endif
+#endif
 
         }
 
@@ -3248,17 +3247,16 @@ namespace Emgu.CV.Test
 
             CvInvoke.Resize(img, img, new Size(224, 224));
 
-            Dnn.Blob inputBlob = new Dnn.Blob();
-            inputBlob.BatchFromImages(img);
-            net.SetBlob(".data", inputBlob);
-            net.Forward();
-            Dnn.Blob probBlob = net.GetBlob("prob");
+            Mat inputBlob = DnnInvoke.BlobFromImage(img);
+            net.SetInput(inputBlob, "data");
+            Mat probBlob = net.Forward("prob");
+
             int classId;
             double classProb;
             GetMaxClass(probBlob, out classId, out classProb);
             String[] classNames = ReadClassNames("synset_words.txt");
 
-//#if !NETFX_CORE
+            //#if !NETFX_CORE
             Trace.WriteLine("Best class: " + classNames[classId] + ". Probability: " + classProb);
             //#endif
 
@@ -3302,7 +3300,7 @@ namespace Emgu.CV.Test
             using (ScalarArray sa = new ScalarArray(new MCvScalar(104, 117, 123)))
                 CvInvoke.Subtract(preprocessedFrame, sa, preprocessedFrame);
 
-
+            /*
             Dnn.Blob inputBlob = new Dnn.Blob();
             inputBlob.BatchFromImages(preprocessedFrame);
             net.SetBlob(".data", inputBlob); //set the network input
@@ -3310,6 +3308,10 @@ namespace Emgu.CV.Test
             
             net.Forward(); //compute output
             Dnn.Blob detection = net.GetBlob("detection_out");
+            */
+            Mat inputBlob = DnnInvoke.BlobFromImage(preprocessedFrame);
+            net.SetInput(inputBlob, "data");
+            Mat detection = net.Forward("detection_out");
 
             float confidenceThreshold = 0.5f;
             String[] labelsLines = File.ReadAllLines("pascal-classes.txt");
@@ -3319,11 +3321,11 @@ namespace Emgu.CV.Test
                 labels[i] = labelsLines[i].Split(' ')[0].Trim();
             }
 
-            using (Mat tmp = detection.MatRef())
+            //using (Mat tmp = detection.MatRef())
             {
-                int[] dim = tmp.SizeOfDimemsion;
+                int[] dim = detection.SizeOfDimemsion;
                 int step = dim[3] * sizeof(float);
-                IntPtr start = tmp.DataPointer;
+                IntPtr start = detection.DataPointer;
                 for (int i = 0; i < dim[2]; i++)
                 {
                     float[] values = new float[dim[3]];
@@ -3340,8 +3342,8 @@ namespace Emgu.CV.Test
                         float yRightTop = values[6] * img.Rows;
                         RectangleF objectRegion = new RectangleF(xLeftBottom, yLeftBottom, xRightTop - xLeftBottom, yRightTop - yLeftBottom);
 
-                        CvInvoke.Rectangle(img, Rectangle.Round(objectRegion), new MCvScalar(0, 255, 0) );
-                        CvInvoke.PutText(img, labels[(int) objectClass], Point.Round( objectRegion.Location), FontFace.HersheyPlain, 1.0, new MCvScalar(0, 0, 255));
+                        CvInvoke.Rectangle(img, Rectangle.Round(objectRegion), new MCvScalar(0, 255, 0));
+                        CvInvoke.PutText(img, labels[(int)objectClass], Point.Round(objectRegion.Location), FontFace.HersheyPlain, 1.0, new MCvScalar(0, 0, 255));
                     }
                 }
                 //Mat detectionMat = new Mat(dim[2], dim[3], DepthType.Cv32F, 1, tmp.DataPointer, dim[3]*sizeof(float)); 
@@ -3367,20 +3369,25 @@ namespace Emgu.CV.Test
 
                 System.IO.Compression.ZipFile.ExtractToDirectory(inceptionFile, ".");
             }
-            
+
             using (Dnn.Importer importer = Dnn.Importer.CreateTensorflowImporter(tensorFlowFile))
                 importer.PopulateNet(net);
-            
+
             Mat img = EmguAssert.LoadMat("space_shuttle.jpg");
 
             CvInvoke.Resize(img, img, new Size(224, 224));
             CvInvoke.CvtColor(img, img, ColorConversion.Bgr2Rgb);
 
+            Mat inputBlob = DnnInvoke.BlobFromImage(img);
+            net.SetInput(inputBlob, "input");
+            Mat probBlob = net.Forward("softmax2");
+            /*
             Dnn.Blob inputBlob = new Dnn.Blob();
             inputBlob.BatchFromImages(img);
             net.SetBlob(".input", inputBlob);
             net.Forward();
             Dnn.Blob probBlob = net.GetBlob("softmax2");
+            */
             int classId;
             double classProb;
             GetMaxClass(probBlob, out classId, out classProb);
@@ -3389,7 +3396,7 @@ namespace Emgu.CV.Test
             //#if !NETFX_CORE
             Trace.WriteLine("Best class: " + classNames[classId] + ". Probability: " + classProb);
             //#endif
-            
+
         }
 #endif
 
@@ -3414,6 +3421,61 @@ namespace Emgu.CV.Test
                 String s2 = s.ToString();
                 EmguAssert.IsTrue(s2.Equals(target));
             }
+        }
+
+        [Test]
+        public void TestHDR()
+        {
+            String[] lines = File.ReadAllLines("list.txt");
+
+            List<Mat> imageList = new List<Mat>();
+            List<float> timeList = new List<float>();
+            foreach (var line in lines)
+            {
+                string[] words = line.Split(' ');
+                String fileName = words[0];
+                Mat m = CvInvoke.Imread(fileName);
+                float time = 1.0f / float.Parse(words[1]);
+                imageList.Add(m);
+                timeList.Add(time);
+            }
+
+            using (VectorOfMat images = new VectorOfMat(imageList.ToArray()))
+            using (VectorOfFloat times = new VectorOfFloat(timeList.ToArray()))
+            {
+                Mat response = new Mat();
+                CalibrateDebevec calibrate = new CalibrateDebevec();
+                calibrate.Process(images, response, times);
+
+                Mat hdr = new Mat();
+                MergeDebevec mergeDebevec = new MergeDebevec();
+                mergeDebevec.Process(images, hdr, times, response);
+
+                Mat ldr = new Mat();
+                TonemapDurand tonemap = new TonemapDurand(2.2f);
+                tonemap.Process(hdr, ldr);
+
+                Mat fusion = new Mat();
+                MergeMertens mergeMertens = new MergeMertens();
+                mergeMertens.Process(images, fusion, times, response);
+                //mergeMertens.Process(images, fusion);
+
+                using (Mat fusionScaled = new Mat())
+                using (Mat ldrScaled = new Mat())
+                using (ScalarArray sa = new ScalarArray(new MCvScalar(255.0, 255.0, 255.0)))
+                {
+                    fusion.ConvertTo(fusionScaled, DepthType.Cv8U, 255);
+                    CvInvoke.Imwrite("fusion.png", fusionScaled);
+
+                    ldr.ConvertTo(ldrScaled, DepthType.Cv8U, 255);
+                    CvInvoke.Imwrite("ldr.png", ldrScaled);
+
+                    CvInvoke.Imwrite("hdr.hdr", hdr);
+                }
+
+            }
+            imageList.Clear();
+
         }
 #endif
 
@@ -3449,7 +3511,7 @@ namespace Emgu.CV.Test
         public void TestDPM()
         {
             Mat m = EmguAssert.LoadMat("pedestrian.png");
-            DpmDetector detector = DpmDetector.Create(new String[] {"inriaperson.xml"}, new string[] {"person"});
+            DpmDetector detector = DpmDetector.Create(new String[] { "inriaperson.xml" }, new string[] { "person" });
             ObjectDetection[] result = detector.Detect(m);
 
         }
@@ -3462,8 +3524,56 @@ namespace Emgu.CV.Test
             CvInvoke.CvtColor(m, gray, ColorConversion.Bgr2Gray);
             Mat result = new Mat();
             XImgproc.XImgprocInvoke.NiBlackThreshold(gray, result, 120, ThresholdType.Binary, 7, 0.5);
-            
+
         }
+
+        private static double CompareHash(ImgHashBase imgHash, Mat m1, Mat m2)
+        {
+            Mat hash1 = new Mat();
+            Mat hash2 = new Mat();
+            imgHash.Compute(m1, hash1);
+            imgHash.Compute(m2, hash2);
+            return imgHash.Compare(hash1, hash2);
+        }
+
+        [Test]
+        public void TestHash()
+        {
+            Mat m1 = EmguAssert.LoadMat("lena.jpg");
+            Mat m2 = new Mat();
+            CvInvoke.GaussianBlur(m1, m2, new Size(3, 3), 1);
+
+            using (AverageHash averageHash = new AverageHash())
+            {
+                double diff = CompareHash(averageHash, m1, m2);
+            }
+
+            using (BlockMeanHash bmh = new BlockMeanHash())
+            {
+                double diff = CompareHash(bmh, m1, m2);
+            }
+
+            using (ColorMomentHash cmh = new ColorMomentHash())
+            {
+                double diff = CompareHash(cmh, m1, m2);
+            }
+
+            using (MarrHildrethHash cmh = new MarrHildrethHash())
+            {
+                double diff = CompareHash(cmh, m1, m2);
+            }
+
+            using (PHash cmh = new PHash())
+            {
+                double diff = CompareHash(cmh, m1, m2);
+            }
+
+            using (RadialVarianceHash cmh = new RadialVarianceHash())
+            {
+                double diff = CompareHash(cmh, m1, m2);
+            }
+        }
+
 #if !NETFX_CORE
 
         [Test]
@@ -3509,7 +3619,7 @@ namespace Emgu.CV.Test
 
                 VectorOfERStat[] regionVecs = new VectorOfERStat[channels.Length];
 
-                
+
                 for (int i = 0; i < regionVecs.Length; i++)
                     regionVecs[i] = new VectorOfERStat();
 

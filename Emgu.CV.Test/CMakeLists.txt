@@ -2,7 +2,7 @@
 #  Copyright (C) 2004-2017 by EMGU Corporation. All rights reserved.
 # --------------------------------------------------------
 
-IF((EMGU_CV_BUILD OR EMGU_CV_EXAMPLE_BUILD) AND NOT ANDROID AND NOT NETFX_CORE)
+IF((EMGU_CV_BUILD OR EMGU_CV_EXAMPLE_BUILD) AND NOT ANDROID AND NOT NETFX_CORE AND NOT APPLE)
 
 PROJECT(Emgu.CV.Test)
 
@@ -29,7 +29,9 @@ IF (NOT EMGU_CV_WITH_TESSERACT)
 ENDIF()  
 
 #copy the test data for this example
-FILE(GLOB_RECURSE SRC_CV_TEST_DATA RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "*.jpg" "*.png" "*.gif" "*.data" "*.bmp" "*.xml" "*.avi")
+#FILE(GLOB_RECURSE SRC_CV_TEST_DATA RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "*.jpg" "*.png" "*.gif" "*.data" "*.bmp" "*.xml" "*.avi")
+FILE(GLOB_RECURSE SRC_CV_TEST_DATA "*.jpg" "*.png" "*.gif" "*.data" "*.bmp" "*.xml" "*.avi")
+#MESSAGE(STATUS "SRC_CV_TEST_DATA: ${SRC_CV_TEST_DATA}")
 LIST(APPEND
 	SRC_CV_TEST_DATA 
 	${CMAKE_CURRENT_SOURCE_DIR}/../opencv/data/haarcascades/haarcascade_frontalface_alt2.xml

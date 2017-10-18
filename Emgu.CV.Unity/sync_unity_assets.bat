@@ -26,10 +26,10 @@ cp Assets/Emgu.CV/Emgu.CV/Video/*.cs ../Emgu.CV/Video
 cp Assets/Emgu.CV/Emgu.CV/Videostab/*.cs ../Emgu.CV/Videostab
 cp Assets/Emgu.CV/Emgu.CV/VideoSurveillance/*.cs ../Emgu.CV/VideoSurveillance 
 #cp Assets/Emgu.CV/Emgu.CV/Viz/*.cs ../Emgu.CV/Viz 
+cp Assets/Emgu.CV/Emgu.CV/Dnn/*.cs ../Emgu.CV/Dnn
 
 cp Assets/Emgu.CV/Emgu.CV.Contrib/Aruco/*.cs ../Emgu.CV.Contrib/Aruco/  
-cp Assets/Emgu.CV/Emgu.CV.Contrib/BgSegm/*.cs ../Emgu.CV.Contrib/BgSegm/  
-cp Assets/Emgu.CV/Emgu.CV.Contrib/Dnn/*.cs ../Emgu.CV.Contrib/Dnn/  
+cp Assets/Emgu.CV/Emgu.CV.Contrib/BgSegm/*.cs ../Emgu.CV.Contrib/BgSegm/    
 cp Assets/Emgu.CV/Emgu.CV.Contrib/Dpm/*.cs ../Emgu.CV.Contrib/Dpm/  
 cp Assets/Emgu.CV/Emgu.CV.Contrib/Face/*.cs ../Emgu.CV.Contrib/Face/ 
 cp Assets/Emgu.CV/Emgu.CV.Contrib/Fuzzy/*.cs ../Emgu.CV.Contrib/Fuzzy/  
@@ -42,6 +42,8 @@ cp Assets/Emgu.CV/Emgu.CV.Contrib/XImgproc/*.cs ../Emgu.CV.Contrib/XImgproc
 cp Assets/Emgu.CV/Emgu.CV.Contrib/XObjdetect/*.cs ../Emgu.CV.Contrib/XObjdetect 
 cp Assets/Emgu.CV/Emgu.CV.Contrib/XPhoto/*.cs ../Emgu.CV.Contrib/XPhoto 
 cp Assets/Emgu.CV/Emgu.CV.Contrib/Bioinspired/*.cs ../Emgu.CV.Contrib/Bioinspired 
+cp Assets/Emgu.CV/Emgu.CV.Contrib/DnnModern/*.cs ../Emgu.CV.Contrib/DnnModern 
+cp Assets/Emgu.CV/Emgu.CV.Contrib/ImgHash/*.cs ../Emgu.CV.Contrib/ImgHash 
 
 cp -r Assets/Emgu.CV/Emgu.CV.OCR/*.cs ../Emgu.CV.OCR 
 
@@ -49,5 +51,5 @@ cp -r Assets/Emgu.CV/Emgu.CV.OCR/*.cs ../Emgu.CV.OCR
 cp -r Assets/Emgu.CV/Emgu.CV.Demo/*.cs demo/
 cp -r Assets/Emgu.CV/Emgu.CV.Demo/*.unity demo/
 cp -r Assets/Emgu.CV/Emgu.CV.Demo/*.unity.meta demo/
-cp -r Assets/Emgu.CV/Emgu.CV.Demo/Resources/*.jpg demo/
-cp -r Assets/Emgu.CV/Emgu.CV.Demo/Resources/*.jpg.meta demo/
+cp -r Assets/Emgu.CV/Emgu.CV.Demo/Resources/*.jpg demo/Resources/
+cp -r Assets/Emgu.CV/Emgu.CV.Demo/Resources/*.jpg.meta demo/Resources/

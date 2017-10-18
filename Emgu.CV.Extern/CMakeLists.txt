@@ -8,6 +8,7 @@ project(cvextern)
 
 INCLUDE_DIRECTORIES("${OPENCV_SUBFOLDER}/include/opencv")
 INCLUDE_DIRECTORIES("${OPENCV_SUBFOLDER}/include")
+INCLUDE_DIRECTORIES("${CMAKE_BINARY_DIR}/opencv/3rdparty/zlib")
 
 MACRO(CREATE_VECTOR_CS vname velement velement_cs element_type cs_source_folder namespace_cs)
   SET(VECTOR_NAME ${vname})
@@ -773,6 +774,27 @@ IF(HAVE_opencv_ml)
     "MlInvoke"
     "SVM"
     "#include \"ml_c.h\"")
+	
+  CREATE_OCV_CLASS_PROPERTY( 
+    "ml/svmsgd_property" 
+    "${CMAKE_CURRENT_SOURCE_DIR}/../Emgu.CV/Ml/SVMSGDGenerated.cs"
+    "cv::ml::SVMSGD" 
+    "SVMSGD" 
+    "SvmsgdType;MarginType;MarginRegularization;InitialStepSize;StepDecreasingPower;TermCriteria" 
+    "int;int;float;float;float;CvTermCriteria" 
+    "prop;prop;prop;prop;prop;struct"
+    "Type;Margin;MarginRegularization;InitialStepSize;StepDecreasingPower;TermCriteria" 
+    "SVMSGD.SvmsgdType;SVMSGD.MarginType;float;float;float;MCvTermCriteria"
+    "Algorithm type;
+	Margin type;
+	marginRegularization of a SVMSGD optimization problem;
+	initialStepSize of a SVMSGD optimization problem;
+	stepDecreasingPower of a SVMSGD optimization problem;
+	Termination criteria of the training algorithm."
+    "Emgu.CV.ML"
+    "MlInvoke"
+    "SVMSGD"
+    "#include \"ml_c.h\"")	
   
   CREATE_OCV_CLASS_PROPERTY( 
     "ml/knearest_property" 
@@ -1038,6 +1060,98 @@ IF(HAVE_opencv_optflow)
 ENDIF()
 ############################### optflow code gen END ################################
 
+############################### photo code gen START ##############################
+IF(HAVE_opencv_photo)
+  CREATE_OCV_CLASS_PROPERTY( 
+    "photo/Tonemap_property" 
+    "${CMAKE_CURRENT_SOURCE_DIR}/../Emgu.CV/Photo/TonemapGenerated.cs"
+    "cv::Tonemap" 
+    "Tonemap" 
+    "Gamma" 
+    "float" 
+    "prop"
+    "Gamma" 
+    "float"
+    "Positive value for gamma correction. Gamma value of 1.0 implies no correction, gamma equal to 2.2f is suitable for most displays."
+    "Emgu.CV"
+    "CvInvoke"
+    "Tonemap"
+    "#include \"opencv2/photo.hpp\"")
+		
+  CREATE_OCV_CLASS_PROPERTY( 
+    "photo/TonemapDurand_property" 
+    "${CMAKE_CURRENT_SOURCE_DIR}/../Emgu.CV/Photo/TonemapDragoGenerated.cs"
+    "cv::TonemapDurand" 
+    "TonemapDurand" 
+    "Saturation;Contrast;SigmaSpace;SigmaColor" 
+    "float;float;float;float" 
+    "prop;prop;prop;prop"
+    "Saturation;Contrast;SigmaSpace;SigmaColor" 
+    "float;float;float;float"
+    "Positive saturation enhancement value. 1.0 preserves saturation, values greater than 1 increase saturation and values less than 1 decrease it.;
+	Resulting contrast on logarithmic scale, i. e. log(max / min), where max and min are maximum and minimum luminance values of the resulting image.;
+	Bilateral filter sigma in color space;
+	bilateral filter sigma in coordinate space"
+    "Emgu.CV"
+    "CvInvoke"
+    "TonemapDurand"
+    "#include \"opencv2/photo.hpp\"")
+
+  CREATE_OCV_CLASS_PROPERTY( 
+    "photo/TonemapReinhard_property" 
+    "${CMAKE_CURRENT_SOURCE_DIR}/../Emgu.CV/Photo/TonemapReinhardGenerated.cs"
+    "cv::TonemapReinhard" 
+    "TonemapReinhard" 
+    "Intensity;LightAdaptation;ColorAdaptation" 
+    "float;float;float" 
+    "prop;prop;prop"
+    "Intensity;LightAdaptation;ColorAdaptation" 
+    "float;float;float"
+    "Result intensity in [-8, 8] range. Greater intensity produces brighter results.;
+	Light adaptation in [0, 1] range. If 1 adaptation is based only on pixel value, if 0 it is global, otherwise it is a weighted mean of this two cases.;
+	chromatic adaptation in [0, 1] range. If 1 channels are treated independently, if 0 adaptation level is the same for each channel."
+    "Emgu.CV"
+    "CvInvoke"
+    "TonemapReinhard"
+    "#include \"opencv2/photo.hpp\"")	
+	
+  CREATE_OCV_CLASS_PROPERTY( 
+    "photo/TonemapDrago_property" 
+    "${CMAKE_CURRENT_SOURCE_DIR}/../Emgu.CV/Photo/TonemapDurandGenerated.cs"
+    "cv::TonemapDrago" 
+    "TonemapDrago" 
+    "Saturation;Bias" 
+    "float;float" 
+    "prop;prop"
+    "Saturation;Bias" 
+    "float;float"
+    "Positive saturation enhancement value. 1.0 preserves saturation, values greater than 1 increase saturation and values less than 1 decrease it.;
+	Value for bias function in [0, 1] range. Values from 0.7 to 0.9 usually give best results, default value is 0.85."
+    "Emgu.CV"
+    "CvInvoke"
+    "TonemapDrago"
+    "#include \"opencv2/photo.hpp\"")		
+	
+  CREATE_OCV_CLASS_PROPERTY( 
+    "photo/TonemapMantiuk_property" 
+    "${CMAKE_CURRENT_SOURCE_DIR}/../Emgu.CV/Photo/TonemapMantiukGenerated.cs"
+    "cv::TonemapMantiuk" 
+    "TonemapMantiuk" 
+    "Saturation;Scale" 
+    "float;float" 
+    "prop;prop"
+    "Saturation;Scale" 
+    "float;float"
+    "Saturation enhancement value.;
+	Contrast scale factor. HVS response is multiplied by this parameter, thus compressing dynamic range. Values from 0.6 to 0.9 produce best results."
+    "Emgu.CV"
+    "CvInvoke"
+    "TonemapMantiuk"
+    "#include \"opencv2/photo.hpp\"")	
+ENDIF()
+############################### photo code gen END ##############################
+
+
 ############################### xfeatures2d code gen START ##############################
 IF(HAVE_opencv_xfeatures2d)
    CREATE_OCV_CLASS_PROPERTY( 
@@ -1285,7 +1399,7 @@ ENDIF()
 IF(WITH_OPENMP)
   FIND_PACKAGE( OpenMP REQUIRED)
   if(OPENMP_FOUND)
-    MESSAGE("Compiling cvextern with OPENMP")
+    MESSAGE(STATUS " -- Compiling cvextern with OPENMP")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
@@ -1528,12 +1642,36 @@ IF(WIN32 AND WITH_CUDA)
   ENDIF()
   
   IF ((${npp_major} GREATER 5) OR ((${npp_major} STREQUAL "5") AND (${npp_minor} GREATER 0)))
-    LIST(APPEND CVEXTERN_DEPENDENCY_DLLS 
-      "${CUDA_NPP_LIBRARY_ROOT_DIR}/bin/nppc${CUDA_POSTFIX}_${npp_major}${npp_minor}.dll"
+	SET(CUDA_NPP_DLLS 
+	  "${CUDA_NPP_LIBRARY_ROOT_DIR}/bin/nppc${CUDA_POSTFIX}_${npp_major}${npp_minor}.dll"
       "${CUDA_NPP_LIBRARY_ROOT_DIR}/bin/nppi${CUDA_POSTFIX}_${npp_major}${npp_minor}.dll"
-      "${CUDA_NPP_LIBRARY_ROOT_DIR}/bin/npps${CUDA_POSTFIX}_${npp_major}${npp_minor}.dll"
+	  "${CUDA_NPP_LIBRARY_ROOT_DIR}/bin/nppial${CUDA_POSTFIX}_${npp_major}${npp_minor}.dll"
+	  "${CUDA_NPP_LIBRARY_ROOT_DIR}/bin/nppicc${CUDA_POSTFIX}_${npp_major}${npp_minor}.dll"
+	  "${CUDA_NPP_LIBRARY_ROOT_DIR}/bin/nppicom${CUDA_POSTFIX}_${npp_major}${npp_minor}.dll"
+	  "${CUDA_NPP_LIBRARY_ROOT_DIR}/bin/nppidei${CUDA_POSTFIX}_${npp_major}${npp_minor}.dll"
+	  "${CUDA_NPP_LIBRARY_ROOT_DIR}/bin/nppif${CUDA_POSTFIX}_${npp_major}${npp_minor}.dll"
+	  "${CUDA_NPP_LIBRARY_ROOT_DIR}/bin/nppig${CUDA_POSTFIX}_${npp_major}${npp_minor}.dll"
+	  "${CUDA_NPP_LIBRARY_ROOT_DIR}/bin/nppim${CUDA_POSTFIX}_${npp_major}${npp_minor}.dll"
+	  "${CUDA_NPP_LIBRARY_ROOT_DIR}/bin/nppist${CUDA_POSTFIX}_${npp_major}${npp_minor}.dll"
+	  "${CUDA_NPP_LIBRARY_ROOT_DIR}/bin/nppisu${CUDA_POSTFIX}_${npp_major}${npp_minor}.dll"
+	  "${CUDA_NPP_LIBRARY_ROOT_DIR}/bin/nppitc${CUDA_POSTFIX}_${npp_major}${npp_minor}.dll"
+      "${CUDA_NPP_LIBRARY_ROOT_DIR}/bin/npps${CUDA_POSTFIX}_${npp_major}${npp_minor}.dll")
+	FOREACH(CUDA_NPP_DLL ${CUDA_NPP_DLLS})
+	  IF(EXISTS "${CUDA_NPP_DLL}")
+		LIST(APPEND CVEXTERN_DEPENDENCY_DLLS "${CUDA_NPP_DLL}")
+	  ENDIF()
+    ENDFOREACH()
+	
+	LIST(APPEND CVEXTERN_DEPENDENCY_DLLS
       "${CUDA_TOOLKIT_ROOT_DIR}/bin/cudart${CUDA_POSTFIX}_${npp_major}${npp_minor}.dll"
       )
+    #LIST(APPEND CVEXTERN_DEPENDENCY_DLLS
+    #  "${CUDA_NPP_LIBRARY_ROOT_DIR}/bin/nppc${CUDA_POSTFIX}_${npp_major}${npp_minor}.dll"
+    #  "${CUDA_NPP_LIBRARY_ROOT_DIR}/bin/nppi${CUDA_POSTFIX}_${npp_major}${npp_minor}.dll"
+    #  "${CUDA_NPP_LIBRARY_ROOT_DIR}/bin/npps${CUDA_POSTFIX}_${npp_major}${npp_minor}.dll"
+    #  "${CUDA_TOOLKIT_ROOT_DIR}/bin/cudart${CUDA_POSTFIX}_${npp_major}${npp_minor}.dll"
+    #  )
+	
     #LIST(APPEND CVEXTERN_DEPENDENCY_DLL_NAMES 
     #  npp${CUDA_POSTFIX}_${npp_major}${npp_minor}_${npp_build} 
     #  cudart${CUDA_POSTFIX}_${npp_major}${npp_minor}_${npp_build})
@@ -1615,7 +1753,7 @@ IF(DEFINED CVEXTERN_DEPENDENCY_DLLS)
   INSTALL(
     FILES 
     ${CVEXTERN_DEPENDENCY_DLLS}
-    DESTINATION bin${UNMANAGED_LIBRARY_OUTPUT_SUBFOLDER}
+    DESTINATION libs${UNMANAGED_LIBRARY_OUTPUT_SUBFOLDER}
     COMPONENT libs)
 ENDIF()
 
@@ -1665,9 +1803,9 @@ set_target_properties(${the_target} PROPERTIES
 # Additional target properties
 set_target_properties(${the_target} PROPERTIES
   DEBUG_POSTFIX "${OPENCV_DEBUG_POSTFIX}"
-  ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin${UNMANAGED_LIBRARY_OUTPUT_SUBFOLDER}"
-  RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin${UNMANAGED_LIBRARY_OUTPUT_SUBFOLDER}"
-  LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin${UNMANAGED_LIBRARY_OUTPUT_SUBFOLDER}"
+  ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/libs${UNMANAGED_LIBRARY_OUTPUT_SUBFOLDER}"
+  RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/libs${UNMANAGED_LIBRARY_OUTPUT_SUBFOLDER}"
+  LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/libs${UNMANAGED_LIBRARY_OUTPUT_SUBFOLDER}"
   DEFINE_SYMBOL "CVAPI_EXPORTS"
   )
 
@@ -1847,7 +1985,9 @@ IF(ANDROID)
     target_link_libraries(${the_target} ${TESSERACT_PROJECTS} tesseract_ccstruct tesseract_dict tesseract_classify tesseract_ccutil)
   ENDIF()
   INSTALL(TARGETS ${the_target} 
-    LIBRARY DESTINATION bin${UNMANAGED_LIBRARY_OUTPUT_SUBFOLDER} COMPONENT libs)
+	RUNTIME DESTINATION libs${UNMANAGED_LIBRARY_OUTPUT_SUBFOLDER} COMPONENT libs
+    LIBRARY DESTINATION libs${UNMANAGED_LIBRARY_OUTPUT_SUBFOLDER} COMPONENT libs
+	ARCHIVE DESTINATION libs${UNMANAGED_LIBRARY_OUTPUT_SUBFOLDER} COMPONENT libs)
 ELSEIF(APPLE)
   IF(EMGU_CV_WITH_TESSERACT)
     IF(NOT TESSERACT_FOUND)
@@ -1855,9 +1995,9 @@ ELSEIF(APPLE)
     ENDIF()
   ENDIF()
   INSTALL(TARGETS ${the_target} 
-    RUNTIME DESTINATION bin${UNMANAGED_LIBRARY_OUTPUT_SUBFOLDER} COMPONENT libs
-    LIBRARY DESTINATION bin${UNMANAGED_LIBRARY_OUTPUT_SUBFOLDER} COMPONENT libs
-    ARCHIVE DESTINATION bin${UNMANAGED_LIBRARY_OUTPUT_SUBFOLDER} COMPONENT libs)
+    RUNTIME DESTINATION libs${UNMANAGED_LIBRARY_OUTPUT_SUBFOLDER} COMPONENT libs
+    LIBRARY DESTINATION libs${UNMANAGED_LIBRARY_OUTPUT_SUBFOLDER} COMPONENT libs
+    ARCHIVE DESTINATION libs${UNMANAGED_LIBRARY_OUTPUT_SUBFOLDER} COMPONENT libs)
 ELSE()
   target_link_libraries(${the_target} ${TIFF_LIBRARY} ${GEOTIFF_LIBRARY})
   IF(EMGU_CV_WITH_TESSERACT)
@@ -1870,9 +2010,9 @@ ELSE()
     ENDIF()
   ENDIF()
   INSTALL(TARGETS ${the_target} 
-    RUNTIME DESTINATION bin${UNMANAGED_LIBRARY_OUTPUT_SUBFOLDER} COMPONENT libs
-    LIBRARY DESTINATION bin${UNMANAGED_LIBRARY_OUTPUT_SUBFOLDER} COMPONENT libs
-    ARCHIVE DESTINATION lib${UNMANAGED_LIBRARY_OUTPUT_SUBFOLDER} COMPONENT libs)
+    RUNTIME DESTINATION libs${UNMANAGED_LIBRARY_OUTPUT_SUBFOLDER} COMPONENT libs
+    LIBRARY DESTINATION libs${UNMANAGED_LIBRARY_OUTPUT_SUBFOLDER} COMPONENT libs
+    ARCHIVE DESTINATION libs${UNMANAGED_LIBRARY_OUTPUT_SUBFOLDER} COMPONENT libs)
 ENDIF()
 
 #add_subdirectory(gpu)
